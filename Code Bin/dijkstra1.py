@@ -1,5 +1,3 @@
-
-
 import math
 import sys
 
@@ -187,7 +185,7 @@ if __name__ == "__main__":
     graph.add_edge(6, 7, 1)
     graph.add_edge(6, 8, 6)
     graph.add_edge(7, 8, 7)
-    
+
     graph.show_graph()
     graph.dijkstra(0)
     graph.show_path(0, 4)

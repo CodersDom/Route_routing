@@ -1,13 +1,13 @@
 import numpy
 
-#https://www.linkedin.com/pulse/genetic-algorithm-implementation-python-ahmed-gad/
-#https://towardsdatascience.com/genetic-algorithm-implementation-in-python-5ab67bb124a6
+# https://www.linkedin.com/pulse/genetic-algorithm-implementation-python-ahmed-gad/
+# https://towardsdatascience.com/genetic-algorithm-implementation-in-python-5ab67bb124a6
 
 
 def cal_pop_fitness(equation_inputs, pop):
     # Calculating the fitness value of each solution in the current population.
     # The fitness function calulates the sum of products between each input and its corresponding weight.
-    fitness = numpy.sum(pop*equation_inputs, axis=1)
+    fitness = numpy.sum(pop * equation_inputs, axis=1)
     return fitness
 
 
@@ -25,13 +25,13 @@ def select_mating_pool(pop, fitness, num_parents):
 def crossover(parents, offspring_size):
     offspring = numpy.empty(offspring_size)
     # The point at which crossover takes place between two parents. Usually, it is at the center.
-    crossover_point = numpy.uint8(offspring_size[1]/2)
+    crossover_point = numpy.uint8(offspring_size[1] / 2)
 
     for k in range(offspring_size[0]):
         # Index of the first parent to mate.
-        parent1_idx = k%parents.shape[0]
+        parent1_idx = k % parents.shape[0]
         # Index of the second parent to mate.
-        parent2_idx = (k+1)%parents.shape[0]
+        parent2_idx = (k + 1) % parents.shape[0]
         # The new offspring will have its first half of its genes taken from the first parent.
         offspring[k, 0:crossover_point] = parents[parent1_idx, 0:crossover_point]
         # The new offspring will have its second half of its genes taken from the second parent.
@@ -47,6 +47,8 @@ def mutation(offspring_crossover, num_mutations=1):
         for mutation_num in range(num_mutations):
             # The random value to be added to the gene.
             random_value = numpy.random.uniform(-1.0, 1.0, 1)
-            offspring_crossover[idx, gene_idx] = offspring_crossover[idx, gene_idx] + random_value
+            offspring_crossover[idx, gene_idx] = (
+                offspring_crossover[idx, gene_idx] + random_value
+            )
             gene_idx = gene_idx + mutations_counter
     return offspring_crossover

@@ -94,73 +94,47 @@ class packet(object):
                 clientSocket.sendto(packet.encode(), ("localhost", neighbor_port))
             time.sleep(1)  # sleep for 1 second
 
-    def receive():
-        while True:
-            encoded_packet, clientAddress = serverSocket.recvfrom(2048)
-            packet = encoded_packet.decode()
-            packet_contents = json.loads(packet)  # convert it to a list from a stream
 
-        node = packet_contents[0]  # save the senders name in a variable
-        sequence_number = packet_contents[2]  # save the sequence number in a variable
-        neighbor_nodes = packet_contents[4]  # save the neighbors in a new list
-        neighbor_ports = packet_contents[7]  # save the neighbor ports in a new list
-        distances = packet_contents[
-            6
-        ]  # save the distances of the neighbors in a new list
+   def receive():  # receive function used to receive packets from all neighboring routers
+     while True:
+      encoded_packet, clientAddress = serverSocket.recvfrom(2048)                   # receive a packet from a neighbor
+      packet = encoded_packet.decode()                                              # decode it
+      packet_contents = json.loads(packet)                                          # convert it to a list from a stream
 
-        routers_state.update({node: 1})  # update the sender's state as 1 (alive)
-        router_packets.update({node: 3})  # update it's counter to 3
+      node = packet_contents[0]                                                     # save the senders name in a variable
+      sequence_number = packet_contents[2]                                          # save the sequence number in a variable
+      neighbor_nodes = packet_contents[4]                                           # save the neighbors in a new list
+      neighbor_ports = packet_contents[7]                                           # save the neighbor ports in a new list
+      distances = packet_contents[6]                                                # save the distances of the neighbors in a new list
 
-        routers_queue.put(
-            node
-        )  # put the senders name in the queue so it can be declared as alive
+      routers_state.update({node : 1})                                              # update the sender's state as 1 (alive)
+      router_packets.update({node : 3})                                             # update it's counter to 3
 
-        if node not in received_packets:  # if the router has sent the packet first time
-            received_packets.setdefault(
-                node, []
-            )  # create its place in the received packets list
-            received_packets[node].append(
-                sequence_number
-            )  # and append its sequence number in it
+      routers_queue.put(node)                                                       # put the senders name in the queue so it can be declared as alive
 
-        if (
-            sequence_number not in received_packets[node]
-        ):  # if the packet received is a new sequence number
-            received_packets[node].append(
-                sequence_number
-            )  # append this sequence number to received packets list
-            # print(packet_contents)
+      if node not in received_packets:                                              # if the router has sent the packet first time
+        received_packets.setdefault(node, [])                                 # create its place in the received packets list
+        received_packets[node].append(sequence_number)                        # and append its sequence number in it
+
+      if sequence_number not in received_packets[node]:                             # if the packet received is a new sequence number
+        received_packets[node].append(sequence_number)                        # append this sequence number to received packets list
+        #print(packet_contents)
+        lock.acquire()
+        graph.add_node(node)                                                  # add the arrived router in the graph
+        lock.release()
+        for index, neighbor_node in enumerate(neighbor_nodes):                # iterate over neighbor names of the sender
+          if neighbor_node not in routers_state or routers_state[neighbor_node] != 0:      # if a neighbor is not dead or it is not in the router_state list altogether
             lock.acquire()
-            graph.add_node(node)  # add the arrived router in the graph
+            graph.add_edge(node, neighbor_node, distances[index])                    # make an edge from the sender and its neighbors with their distances
+            # print("node: ", node, ", neighbor_node: ", neighbor_node, ", distance: ", distances[index])
             lock.release()
+        # print()
 
-            for index, neighbor_node in enumerate(
-                neighbor_nodes
-            ):  # iterate over neighbor names of the sender
-                if (
-                    neighbor_node not in routers_state
-                    or routers_state[neighbor_node] != 0
-                ):  # if a neighbor is not dead or it is not in the router_state list altogether
-                    lock.acquire()
-                    graph.add_edge(
-                        node, neighbor_node, distances[index]
-                    )  # make an edge from the sender and its neighbors with their distances
-                    # print("node: ", node, ", neighbor_node: ", neighbor_node, ", distance: ", distances[index])
-                    lock.release()
+        # print("Received:")
+        # print(packet_contents)
+        # print()
 
-        #   print()
-
-        #  print("Received:")
-        #  print(packet_contents)
-        #  print()
-        for (
-            neighbor_port
-        ) in port_numbers:  # iterate over the neighboring router's port numbers
-            if (
-                neighbor_port != packet_contents[1]
-                and neighbor_port not in neighbor_ports
-            ):  # don't send the packet to the one it received from
-                clientSocket.sendto(
-                    packet.encode(), ("localhost", neighbor_port)
-                )  # else send the packet to all other neighbors
-                # time.sleep(1)
+        for neighbor_port in port_numbers:                                     # iterate over the neighboring router's port numbers
+          if neighbor_port != packet_contents[1] and neighbor_port not in neighbor_ports:     # don't send the packet to the one it received from
+            clientSocket.sendto(packet.encode(), ("localhost", neighbor_port))          # else send the packet to all other neighbors
+            # time.sleep(1)
