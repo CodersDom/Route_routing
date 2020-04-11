@@ -35,7 +35,7 @@ function Neuron(x, y)
     this.display = function() 
     {
       //controls the appearances of the nodes
-      fill('blue');
+      fill('yellow');
       stroke(0);
       strokeWeight(1);
       //shape of the nodes

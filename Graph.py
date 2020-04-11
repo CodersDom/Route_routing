@@ -1,4 +1,4 @@
-import packet
+# import packet
 import RandomGen
 import ProbabilityFunction
 import dijkstra
@@ -28,8 +28,8 @@ for i in edgeslist:
     print(u, v, w)
     graph.addEdge(u, v, w)
 
-packet.send()
-packet.recieve()
+# packet.send()
+# packet.recieve()
 # for loss track the recieved and '-' it for the send_packet.
 
 print("Shortest Path between %d and %d is " % (src, dest)),
