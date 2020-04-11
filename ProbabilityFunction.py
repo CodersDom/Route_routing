@@ -42,7 +42,7 @@ def matrixEdges(matrx, n):
 
 
 # n = int(input("Enter N (Graph will be in N*N Format) : "))
-n = 16
+n = 4
 matrix = []
 val = 0
 for i in range(n):

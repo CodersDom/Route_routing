@@ -1,4 +1,4 @@
-# import packet
+import packet
 import RandomGen
 import ProbabilityFunction
 import dijkstra
